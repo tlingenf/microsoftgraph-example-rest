@@ -63,6 +63,7 @@ namespace Drive.Graph
             _configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetParent(AppContext.BaseDirectory).FullName)
                 .AddJsonFile("appsettings.json", false)
+                .AddJsonFile("appsettings.json.user", true)
                 .Build();
         }
     }
