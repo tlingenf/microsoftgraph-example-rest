@@ -12,48 +12,25 @@ namespace ProcessPlannerTasks.Service
 {
     class Program
     {
-        private const string clientId = "4b7bce2b-0b0c-4b3c-bf1d-ee2607d95b08";
-        private const string tenantId = "34f6951c-e759-4967-9c6a-f05de4922e5c";
-        private const string username = "svc.planner@M365x570719.onmicrosoft.com";
-        private const string password = "Buc87698";
-        static readonly string[] scopes = { "Tasks.Read.Shared", "Group.ReadWrite.All", "offline_access" };
+        private const string clientId = "bc6a651d-94d6-4624-8e92-20653be4ad51";
+        private const string tenantId = "organizations";
+        static readonly string[] scopes = { "Tasks.ReadWrite.Shared", "Tasks.ReadWrite", "Group.Read.All" };
 
         static async Task Main(string[] args)
         {
-            //await ResourceOwnerAuth(args);
-            await DeviceCodeAuth(args);
+            await InteractiveAuth();
+            Console.WriteLine("Press any key to continue...");
+            Console.ReadKey();
         }
 
-        static async Task ResourceOwnerAuth(string[] args)
+        static async Task InteractiveAuth()
         {
             IPublicClientApplication publicClientApplication = PublicClientApplicationBuilder
-                        .Create(clientId)
-                        .WithTenantId(tenantId)
-                        .Build();
+                .Create(clientId)
+                .WithRedirectUri("https://login.microsoftonline.com/common/oauth2/nativeclient")
+                .Build();
 
-            UsernamePasswordProvider authProvider = new UsernamePasswordProvider(publicClientApplication, scopes);
-
-            GraphServiceClient graphClient = new GraphServiceClient(authProvider);
-
-            var me = await graphClient.Me
-                .Request()
-                .WithUsernamePassword(username, ConvertToSecureString(password))
-                .GetAsync();
-
-            await DoWorkAsync(graphClient);
-        }
-
-        static async Task DeviceCodeAuth(string[] args)
-        {
-
-            IPublicClientApplication publicClientApplication = PublicClientApplicationBuilder
-            .Create(clientId)
-            .WithTenantId(tenantId)
-            .Build();
-
-            Func<DeviceCodeResult, Task> deviceCodeReadyCallback = async dcr => await System.Console.Out.WriteLineAsync(dcr.Message);
-            DeviceCodeProvider authProvider = new DeviceCodeProvider(publicClientApplication, scopes, deviceCodeReadyCallback);
-            //DeviceCodeProvider authProvider = new DeviceCodeProvider(publicClientApplication, scopes);
+            InteractiveAuthenticationProvider authProvider = new InteractiveAuthenticationProvider(publicClientApplication, scopes);
 
             GraphServiceClient graphClient = new GraphServiceClient(authProvider);
 
@@ -70,36 +47,29 @@ namespace ProcessPlannerTasks.Service
             foreach (var plan in plans)
             {
                 var foundTasks = from task in (await graphClient.Planner.Plans[plan.Id].Tasks.Request().GetAsync())
-                                    where (task.AppliedCategories.Category2 == true)
-                                    select task;
+                                 where (task.AppliedCategories.Category2 == true)
+                                 select task;
 
                 ready2Process.AddRange(foundTasks);
             }
 
             foreach (var currentTask in ready2Process)
             {
-                await ScheduleTask(currentTask, graphClient);
+                await CompleteTask(currentTask, graphClient);
             }
         }
 
-        private static async Task ScheduleTask(PlannerTask task, GraphServiceClient graphClient)
+        private static async Task CompleteTask(PlannerTask task, GraphServiceClient graphClient)
         {
             Console.WriteLine("Updating Task {0}", task.Title);
             var updateTask = new PlannerTask();
             updateTask.AppliedCategories = new PlannerAppliedCategories();
             updateTask.AppliedCategories.Category2 = false;
-            updateTask.AppliedCategories.Category1 = true;
+            updateTask.AppliedCategories.Category4 = true;
             await graphClient.Planner.Tasks[task.Id]
                 .Request()
                 .Header("If-Match", task.GetEtag())
                 .UpdateAsync(updateTask);
-
-            //task.AppliedCategories.Category2 = null;
-            //task.AppliedCategories.Category1 = true;
-            //await graphClient.Planner.Tasks[task.Id]
-            //    .Request()
-            //    .UpdateAsync(task);
-
         }
 
         private static SecureString ConvertToSecureString(string password)

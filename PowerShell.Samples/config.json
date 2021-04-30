@@ -1,0 +1,14 @@
+{
+  "auth": {
+    "appId": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
+    "secret": "xxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "tenant": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
+    "redirectUri": "https://login.microsoftonline.com/common/oauth2/nativeclient",
+    "scopes": "https://graph.microsoft.com/Sites.ReadWrite.All"
+  },
+  "SharePoint": {
+    "hostname": "tenant.sharepoint.com",
+    "sitePath": "/sites/GraphDemo",
+    "libName": "Documents"
+  }
+}
