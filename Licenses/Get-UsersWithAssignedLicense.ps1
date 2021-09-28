@@ -1,8 +1,7 @@
 ﻿Import-Module MSAL.PS -ErrorAction Stop
 
-$SKU_NAME = "POWERAPPS_VIRAL"
-$CLIENT_ID = "f2694bc6-5dc8-48bc-880b-14eb1034f65d"
-$TENANT_ID = "4e2c0a7e-91a7-4c7f-9ba3-5eb81c88cb8f"
+$CLIENT_ID = ""
+$TENANT_ID = ""
 $SCOPES = "Directory.ReadWrite.All"
 $LICENSE_NAME = "POWERAPPS_VIRAL"
 
