@@ -2,7 +2,7 @@
 
 $CLIENT_ID = ""
 $TENANT_ID = ""
-$SCOPES = "Directory.ReadWrite.All"
+$SCOPES = "Directory.Read.All"
 $LICENSE_NAME = "POWERAPPS_VIRAL"
 
 $auth = Get-MsalToken -ClientId $CLIENT_ID -TenantId $TENANT_ID -Scopes $SCOPES -RedirectUri "https://login.microsoftonline.com/common/oauth2/nativeclient" -Interactive
