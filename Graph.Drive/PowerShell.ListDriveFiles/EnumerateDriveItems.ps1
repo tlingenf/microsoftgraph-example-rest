@@ -3,10 +3,12 @@
 Write-Host "Reading configuration from config.json" -ForegroundColor Yellow
 $config = Get-Content -Path (Join-Path $PSScriptRoot "config.json") -Raw | ConvertFrom-Json
 
-$authToken = Get-MsalToken -ClientId $config.auth.appId -TenantId $config.auth.tenant -RedirectUri $config.auth.redirectUri -Interactive
+if ($auth -and $auth.ExpiresOn.LocalDateTime -lt (Get-Date)) {
+    $auth = Get-MsalToken -ClientId "205589cc-1f7f-4c77-9ad7-5e0fc82c1eb8" -TenantId "5b52477b-6502-4b3c-8c70-3e3ff25efc07" -RedirectUri "https://login.microsoftonline.com/common/oauth2/nativeclient" -Interactive
+}
 
 $httpHeader = @{
-    "Authorization"="Bearer $($authToken.AccessToken)";
+    "Authorization"="Bearer $($auth.AccessToken)";
     "Content-Type"="application/json";
     "Accept"="application/json";
 }
